@@ -1,10 +1,13 @@
 use std::collections::BTreeMap;
+use std::collections::HashMap;
 
+#[derive(PartialEq, Eq)]
 enum BencodeValue {
     Str(Vec<u8>),
     Int(i64),
     List(Vec<BencodeValue>),
-    Dict(BTreeMap<BencodeValue, BencodeValue>),
+    Dict(HashMap<Vec<u8>, BencodeValue>), // key is Vec<u8>, not BencodeValue
+    End,
 }
 pub fn decode(raw: &[u8]) -> Result<(&[u8], BencodeValue), String> {
     //String - 3:spam
@@ -32,6 +35,40 @@ pub fn decode(raw: &[u8]) -> Result<(&[u8], BencodeValue), String> {
                 &raw[(start + 1)..(start + 1 + length)],
                 BencodeValue::Str(string),
             ))
+        }
+        b'l' => {
+            let mut items = Vec::new();
+            let mut remaining = &raw[1..];
+            loop {
+                let (rest, val) = decode(remaining)?;
+                if val == BencodeValue::End {
+                    return Ok((rest, BencodeValue::List(items)));
+                }
+                items.push(val);
+                remaining = rest;
+            }
+        }
+        b'd' => {
+            let mut k = Vec::new();
+            let mut v = BencodeValue::End;
+            let mut map = HashMap::new();
+            let mut remaining = &raw[1..];
+            let mut count = 0;
+            loop {
+                let (rest, val) = decode(remaining)?;
+                if val == BencodeValue::End {
+                    return Ok((rest, BencodeValue::Dict(map)));
+                }
+                if count % 2 == 0 {
+                    if let BencodeValue::Str(bytes) = val {
+                        k = bytes;
+                    }
+                } else {
+                    v = val;
+                    map.insert(k.clone(), v);
+                }
+                count += 1;
+            }
         }
         _ => Ok((&[], BencodeValue::Int(0))), // catch-all placeholder
     }
