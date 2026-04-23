@@ -31,20 +31,24 @@ struct Tracker {
     event: TrackerEventType,
 }
 
-enum PeerMessageType {
-    Choke,
-    Unchoke, 
-    Interested,
-    Not_Interested,
-    Have,
-    Bitfield,
-    Request,
-    Piece,
-    Cancel,
-}
-}
 struct Metainfo {
     announce: String,
     info: Info,
-    trackers: Tracker,
+    tracker: Tracker,
+}
+
+impl Metainfo {
+    pub fn new(announce: String, info: Info, tracker: Tracker) -> Self {
+        Self {
+            announce,
+            info,
+            tracker,
+        }
+    }
+    //bencoding
+    // take in a vector of raw bytes, or a slice of raw bytes. and a metainfo struct
+    // Create a MetaInfo struct, the metainfo struct is continually added to and returned back to
+    // the funciton until nothing in the slidce of raw bytes matches anymore.l that means we are a
+    //t the end. and then return simply the MetaINfo struct
+    //
 }
