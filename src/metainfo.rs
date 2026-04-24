@@ -3,6 +3,7 @@ use std::error;
 use std::net::Ipv4Addr;
 
 use crate::bencoding::BencodeValue;
+#[derive(Debug)]
 pub struct Info {
     pub name: String,
     //number of bytes in each piece the file is split into. fixed length sizesalwaqys power of two.
@@ -105,5 +106,17 @@ impl Metainfo {
             }
             _ => Err("string".to_string()),
         }
+    }
+
+    pub fn decode_benvalue(bencode_value: BencodeValue) -> Result<Metainfo, String> {
+        Self::deocde_benvalue(bencode_value)
+    }
+
+    pub fn announce(&self) -> &str {
+        &self.announce
+    }
+
+    pub fn info(&self) -> &Info {
+        &self.info
     }
 }

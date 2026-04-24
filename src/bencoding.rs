@@ -15,6 +15,9 @@ pub fn decode(raw: &[u8]) -> Result<(&[u8], BencodeValue), String> {
     //List l4:spam3eggse
     //Dictionary - d3:cow3:moo4:spame
     //
+    if raw.is_empty() {
+        return Err("raw is empty".to_string());
+    }
     match raw[0] {
         // first, iterate through row and find the e at the end of integer. grab that index.
         // from 1->end pull the actual number , unwrap it.
@@ -26,15 +29,12 @@ pub fn decode(raw: &[u8]) -> Result<(&[u8], BencodeValue), String> {
         }
         b'0'..=b'9' => {
             let start = raw.iter().position(|&b| b == b':').unwrap();
-            let length = std::str::from_utf8(&raw[0..start])
+            let length: usize = std::str::from_utf8(&raw[0..start])
                 .unwrap()
                 .parse()
                 .unwrap();
-            let string = raw[(start + 1)..length].to_vec();
-            Ok((
-                &raw[(start + 1)..(start + 1 + length)],
-                BencodeValue::Str(string),
-            ))
+            let string = raw[(start + 1)..(start + 1 + length)].to_vec();
+            Ok((&raw[(start + 1 + length)..], BencodeValue::Str(string)))
         }
         b'l' => {
             let mut items = Vec::new();
@@ -70,6 +70,7 @@ pub fn decode(raw: &[u8]) -> Result<(&[u8], BencodeValue), String> {
                 count += 1;
             }
         }
+        b'e' => Ok((&raw[1..], BencodeValue::End)),
         _ => Ok((&[], BencodeValue::Int(0))), // catch-all placeholder
     }
 }
