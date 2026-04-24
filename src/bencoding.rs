@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::collections::HashMap;
 
 #[derive(PartialEq, Eq)]
-enum BencodeValue {
+pub enum BencodeValue {
     Str(Vec<u8>),
     Int(i64),
     List(Vec<BencodeValue>),
@@ -52,7 +52,7 @@ pub fn decode(raw: &[u8]) -> Result<(&[u8], BencodeValue), String> {
             let mut k = Vec::new();
             let mut v = BencodeValue::End;
             let mut map = HashMap::new();
-            let mut remaining = &raw[1..];
+            let remaining = &raw[1..];
             let mut count = 0;
             loop {
                 let (rest, val) = decode(remaining)?;
