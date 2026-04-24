@@ -9,6 +9,8 @@ pub enum BencodeValue {
     Dict(HashMap<Vec<u8>, BencodeValue>), // key is Vec<u8>, not BencodeValue
     End,
 }
+
+pub fn info_hash(raw: &[u8]) -> Result<&[u8], String> {}
 pub fn decode(raw: &[u8]) -> Result<(&[u8], BencodeValue), String> {
     //String - 3:spam
     //Integer - i3e
