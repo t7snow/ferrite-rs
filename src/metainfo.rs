@@ -51,37 +51,39 @@ impl Metainfo {
     // Create a MetaInfo struct, the metainfo struct is continually added to and returned back to
     // the funciton until nothing in the slidce of raw bytes matches anymore.l that means we are a
     //t the end. and then return simply the MetaINfo struct
+    //
+    //TODO: Fix the announce thing here
     pub fn deocde_benvalue(bencode_value: BencodeValue) -> Result<Metainfo, String> {
         match bencode_value {
             BencodeValue::Dict(map) => {
                 let info = map.get(&b"info".to_vec()).unwrap();
 
-                match info {
+                match &info.value {
                     BencodeValue::Dict(info_map) => {
-                        let announce = match map.get(&b"announce".to_vec()).unwrap() {
+                        let announce = match &map.get(&b"announce".to_vec()).unwrap().value {
                             BencodeValue::Str(s) => String::from_utf8(s.clone()).unwrap(),
                             _ => return Err("announce not a string".to_string()),
                         };
-                        let name = match info_map.get(&b"name".to_vec()).unwrap() {
+                        let name = match &info_map.get(&b"name".to_vec()).unwrap().value {
                             BencodeValue::Str(s) => String::from_utf8(s.clone()).unwrap(),
                             _ => return Err("name not a string".to_string()),
                         };
-                        let piece_length = match info_map.get(&b"piece length".to_vec()).unwrap() {
+                        let piece_length = match &info_map.get(&b"piece length".to_vec()).unwrap().value {
                             BencodeValue::Int(i) => i,
                             _ => return Err("piece_length not an i64".to_string()),
                         };
-                        let pieces = match info_map.get(&b"pieces".to_vec()).unwrap() {
+                        let pieces = match &info_map.get(&b"pieces".to_vec()).unwrap().value {
                             BencodeValue::Str(s) => String::from_utf8(s.clone()).unwrap(),
                             _ => return Err("pieces not a string".to_string()),
                         };
-                        let length = match info_map.get(&b"length".to_vec()).unwrap() {
+                        let length = match &info_map.get(&b"length".to_vec()).unwrap().value {
                             BencodeValue::Int(i) => i,
                             _ => return Err("length not an i64".to_string()).unwrap(),
                         };
-                        let path = match info_map.get(&b"path".to_vec()).unwrap() {
+                        let path = match &info_map.get(&b"path".to_vec()).unwrap().value {
                             BencodeValue::List(l) => l
                                 .iter()
-                                .map(|x| match x {
+                                .map(|x| match &x.value {
                                     BencodeValue::Str(s) => String::from_utf8(s.clone()).unwrap(),
                                     _ => panic!("path element not a string"),
                                 })
